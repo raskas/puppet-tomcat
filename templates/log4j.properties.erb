@@ -1,0 +1,39 @@
+log4j.category.nbiRequest=INFO, nbifile
+log4j.additivity.nbiRequest=false
+
+log4j.rootLogger=INFO, syslog
+
+log4j.category.ntc=INFO
+log4j.category.org=INFO
+log4j.category.httpclient=INFO
+log4j.category.org.springframework.flex.servlet.MessageBrokerHandlerAdapter=WARN
+
+# file logger (not used normally)
+log4j.appender.file=org.apache.log4j.FileAppender
+log4j.appender.file.File=/var/log/tomcat6/<%= name %>/log4j.log
+log4j.appender.file.Append=true
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{HH:mm:ss,SSS} %p %c %t - %m%n
+
+# ACS nbi logger 
+log4j.appender.nbifile=org.apache.log4j.FileAppender
+log4j.appender.nbifile.File=/var/log/tomcat6/<%= name %>/nbi.log
+log4j.appender.nbifile.layout=org.apache.log4j.PatternLayout
+log4j.appender.nbifile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSS} %p %c %t - %m%n
+
+# webservice call logger
+log4j.category.org.apache.cxf.services=INFO, webservice
+log4j.additivity.org.apache.cxf.services=false
+log4j.appender.webservice=org.apache.log4j.FileAppender
+log4j.appender.webservice.File=/var/log/tomcat6/<%= name %>/soap.log
+log4j.appender.webservice.layout=org.apache.log4j.PatternLayout
+log4j.appender.webservice.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSS} %p %c %t - %m%n
+
+# syslog logger
+log4j.appender.syslog=org.apache.log4j.net.SyslogAppender
+log4j.appender.syslog.Facility=<%= syslog %>
+log4j.appender.syslog.FacilityPrinting=true
+log4j.appender.syslog.SyslogHost=localhost
+log4j.appender.syslog.Threshold=INFO
+log4j.appender.syslog.layout=org.apache.log4j.PatternLayout
+log4j.appender.syslog.layout.ConversionPattern=%-5p [%c] %m%n

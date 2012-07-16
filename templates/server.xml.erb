@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Server port="<%= serverport %>" shutdown="SHUTDOWN">
+
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <Listener className="org.apache.catalina.core.JasperListener" />
+  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="ntc.nms.tomcatlog4j.Log4JInitializer" propertiesFile="/usr/local/tomcat6-<%= name %>/conf/log4j.properties"/>
+  <Listener className="ntc.nms.tomcatstartup.TomcatStartupNotifier" file="/usr/local/tomcat6-<%= name %>/startup.check" />
+
+<%- unless auth.to_s.empty? then -%>
+  <GlobalNamingResources>
+    <Resource name="jdbc/acsDB" auth="Container" type="javax.sql.DataSource" scope="Shareable"
+             maxActive="100" maxIdle="30" maxWait="10000"
+             username="user1" password="pass1" driverClassName="com.mysql.jdbc.Driver"
+             removeAbandoned="true" removeAbandonedTimeout="60" validationQuery="select 1"
+             url="jdbc:mysql://SVC-CODB:3306/acs?autoReconnect=true&amp;connectTimeout=5000&amp;socketTimeout=8000" />
+  </GlobalNamingResources>
+
+<%- end -%>
+  <Service name="Catalina">
+
+    <Connector port="<%= port %>" protocol="HTTP/1.1"
+               address="localhost" maxThreads="500" minSpareThreads="25" maxSpareThreads="75" />
+
+    <Connector port="<%= ajpport %>" protocol="AJP/1.3"
+               address="localhost" maxThreads="500" minSpareThreads="25" maxSpareThreads="75" />
+
+    <Engine name="Catalina" defaultHost="localhost">
+
+      <Host name="localhost"  appBase="webapps"
+            unpackWARs="true" autoDeploy="true"
+            xmlValidation="false" xmlNamespaceAware="false">
+<%- unless auth.to_s.empty? then -%>
+
+            <Valve className="org.apache.catalina.authenticator.SingleSignOn"
+                   requireReauthentication="true" />
+           
+            <Realm className="org.apache.catalina.realm.JAASRealm"
+                   appName="<%= name %>"
+                   userClassNames="ntc.acs.authentication.UserPrincipal"
+                   roleClassNames="ntc.acs.authentication.RolePrincipal"
+                   debug="false"
+                   digest="MD5" />
+<%- end -%>
+      </Host>
+    </Engine>
+  </Service>
+</Server>
